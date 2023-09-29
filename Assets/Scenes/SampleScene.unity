@@ -7522,6 +7522,8 @@ GameObject:
   - component: {fileID: 241295461}
   - component: {fileID: 241295458}
   - component: {fileID: 241295457}
+  - component: {fileID: 241295463}
+  - component: {fileID: 241295462}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -7574,7 +7576,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!212 &241295459
 SpriteRenderer:
@@ -7617,7 +7619,7 @@ SpriteRenderer:
   m_SortingLayerID: -219433535
   m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: 1882377646, guid: f4ff62b8b2fcfe947813944d1e54e860, type: 3}
+  m_Sprite: {fileID: -473982189, guid: b4f4398eec60e674ba4a60cb317051cf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -7657,15 +7659,69 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82d07cff179f0964790258d842120d96, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  horizontal: 1
+  vertical: -1
+  groundCheckRadius: 0.3
+  dashAttackRadius: 1.2
+  attackRange: 1.4
+  attackRadius: 0.7
   rb: {fileID: 241295458}
   feet: {fileID: 1340689726}
-  attackOrigin: {fileID: 1070097424}
+  playerOrigin: {fileID: 1070097424}
   platforms:
     serializedVersion: 2
     m_Bits: 64
   enemy:
     serializedVersion: 2
     m_Bits: 128
+  anim: {fileID: 241295462}
+--- !u!95 &241295462
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 241295456}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 2727ab3eeaf195d4eb5c5ef0cb6bf38a, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!61 &241295463
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 241295456}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 6200000, guid: 4528e996263bca7409d80ed469cda96c, type: 2}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: -0.000000059604645, y: -0.1908705}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 2, y: 2}
+    newSize: {x: 2, y: 2}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 0.73059714, y: 1.5037029}
+  m_EdgeRadius: 0
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -9227,7 +9283,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1070097424}
   m_Layer: 0
-  m_Name: AttackOrigin
+  m_Name: PlayerOrigin
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -131,8 +131,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 39cdfc2cb1dd43b44ac996c30f37449b
-      internalID: -679910264
+      spriteID: c81d3365ec0f8204b844a36beae78332
+      internalID: -682303357
       vertices: []
       indices: 
       edges: []
@@ -152,8 +152,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c3942460de356cb41ad08ec618886c7d
-      internalID: 1842430301
+      spriteID: 83d06444657d22340a1325f2f79adb17
+      internalID: -1957555999
       vertices: []
       indices: 
       edges: []
@@ -173,8 +173,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: fdf199617320a6f4288d045bdd4a87d6
-      internalID: 1967956419
+      spriteID: 5814d46adee6f0348a3da160bfd2bcae
+      internalID: -641856769
       vertices: []
       indices: 
       edges: []
@@ -194,8 +194,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 599102df0e1978d4287543acb92e4d0c
-      internalID: 1255834664
+      spriteID: d8a679099ab8a7a4c97c21530b3333b8
+      internalID: 860208732
       vertices: []
       indices: 
       edges: []
@@ -215,8 +215,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5b76818e63ab1664babfbd27e67ecd8b
-      internalID: 898910814
+      spriteID: 9648f2fb578bacd4388adbb4d853f5ce
+      internalID: -1147642038
       vertices: []
       indices: 
       edges: []
@@ -236,8 +236,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9dc4c4302d87a5c4b8bedf7e30a4d9aa
-      internalID: 413699043
+      spriteID: 1fe9b04f28679a346be579226d2f8215
+      internalID: 1699428631
       vertices: []
       indices: 
       edges: []
@@ -253,12 +253,12 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Jump_0: -679910264
-      Jump_1: 1842430301
-      Jump_2: 1967956419
-      Jump_3: 1255834664
-      Jump_4: 898910814
-      Jump_5: 413699043
+      Jump_0: -682303357
+      Jump_1: -1957555999
+      Jump_2: -641856769
+      Jump_3: 860208732
+      Jump_4: -1147642038
+      Jump_5: 1699428631
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

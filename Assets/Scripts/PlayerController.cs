@@ -10,7 +10,9 @@ public class PlayerController : MonoBehaviour
     private float attackDamage = 4f;
 
     //Inputs
+    [SerializeField]
     private float horizontal;
+    [SerializeField]
     private float vertical;
 
     //Player State
@@ -18,8 +20,11 @@ public class PlayerController : MonoBehaviour
     private bool isFacingRight = true;
     private bool isDashing = false;
     private bool isGrounded;
+    [SerializeField]
     private float groundCheckRadius = 0.7f;
     private bool canTakeDamage = true;
+    private bool isWalking;
+    private bool isJumping;
 
     //Movement
     private float moveSpeed = 15;
@@ -30,6 +35,8 @@ public class PlayerController : MonoBehaviour
     private float jumpPower = 20;
 
     //Dashing
+    private float dashHorizontal;
+    private float dashVertical;
     private float dashSpeed = 40;
     private float dashTime = 0.2f;
     private float currentDashTime;
@@ -38,10 +45,13 @@ public class PlayerController : MonoBehaviour
     private int dashAttackMultiplier;
     private int normalDashAttackMultiplier = 3;
     private int maxDashAttackMultiplier = 20;
+    [SerializeField]
     private float dashAttackRadius = 1.5f;
 
     //Attacking
+    [SerializeField]
     private float attackRange = 3f;
+    [SerializeField]
     private float attackRadius = 0.5f;
     private float lastAttack = Mathf.NegativeInfinity;
     private float attackCooldown = 0.2f;
@@ -55,9 +65,10 @@ public class PlayerController : MonoBehaviour
     //References to other components
     public Rigidbody2D rb;
     public Transform feet;
-    public Transform attackOrigin;
+    public Transform playerOrigin;
     public LayerMask platforms;
     public LayerMask enemy;
+    public Animator anim;
 
     // Update is called once per frame
     void Update()
@@ -81,6 +92,16 @@ public class PlayerController : MonoBehaviour
             transform.Rotate(0, 180, 0);
         }
 
+        //Walking
+        if (rb.velocity.x != 0 && isGrounded)
+        {
+            isWalking = true;
+        }
+        else
+        {
+            isWalking = false;
+        }
+
         //Jumping
         //Reset jumps when grounded
         if (isGrounded && rb.velocity.y <= 0)
@@ -98,6 +119,7 @@ public class PlayerController : MonoBehaviour
             rb.velocity = new Vector2(rb.velocity.x, jumpPower);
         }
 
+
         //Dashing
         Collider2D[] objectsHitByDash;
         if (Input.GetKeyDown(KeyCode.C)) 
@@ -108,6 +130,22 @@ public class PlayerController : MonoBehaviour
                 canTakeDamage = false;
                 canMove = false;
                 currentDashTime = dashTime;
+                if (horizontal == 0 && vertical == 0)
+                {
+                    if (isFacingRight)
+                    {
+                        dashHorizontal = 1;
+                    }
+                    else
+                    {
+                        dashHorizontal = -1;
+                    }
+                }
+                else
+                {
+                    dashHorizontal = horizontal;
+                }
+                dashVertical = vertical;
 
                 //Change damage of dash based on dashCharges
                 if (dashCharges == maxDashCharges)
@@ -127,10 +165,10 @@ public class PlayerController : MonoBehaviour
             {
                 //Decrease dash timer
                 currentDashTime -= Time.deltaTime;
-                rb.velocity = new Vector2(dashSpeed * horizontal, dashSpeed * vertical);
+                rb.velocity = new Vector2(dashSpeed * dashHorizontal, dashSpeed * dashVertical);
 
                 //Cause enemies in the way of dash to take damage
-                objectsHitByDash = Physics2D.OverlapCircleAll(attackOrigin.position, dashAttackRadius, enemy);
+                objectsHitByDash = Physics2D.OverlapCircleAll(playerOrigin.position, dashAttackRadius, enemy);
                 foreach (Collider2D collider in objectsHitByDash)
                 {
                     collider.transform.parent.SendMessage("Damage", attackDamage * dashAttackMultiplier);
@@ -161,16 +199,16 @@ public class PlayerController : MonoBehaviour
                 {
                     if (isFacingRight)
                     {
-                        objectsHitByAttack = Physics2D.OverlapCircleAll(new Vector2(attackOrigin.position.x + attackRange, attackOrigin.position.y), attackRadius, enemy);
+                        objectsHitByAttack = Physics2D.OverlapCircleAll(new Vector2(playerOrigin.position.x + attackRange, playerOrigin.position.y), attackRadius, enemy);
                     }
                     else
                     {
-                        objectsHitByAttack = Physics2D.OverlapCircleAll(new Vector2(attackOrigin.position.x - attackRange, attackOrigin.position.y), attackRadius, enemy);
+                        objectsHitByAttack = Physics2D.OverlapCircleAll(new Vector2(playerOrigin.position.x - attackRange, playerOrigin.position.y), attackRadius, enemy);
                     }
                 }
                 else
                 {
-                    objectsHitByAttack = Physics2D.OverlapCircleAll(new Vector2((attackOrigin.position.x + attackRange) * horizontal, (attackOrigin.position.y + attackRange) * vertical), attackRadius, enemy);
+                    objectsHitByAttack = Physics2D.OverlapCircleAll(new Vector2((playerOrigin.position.x + attackRange) * horizontal, (playerOrigin.position.y + attackRange) * vertical), attackRadius, enemy);
                 }
 
                 //If attack hit something, increment dash charges, apply attack recoil, and send a message for enemies to take damage
@@ -204,7 +242,9 @@ public class PlayerController : MonoBehaviour
         }
 
         //Update animations
-
+        anim.SetBool("isWalking", isWalking);
+        anim.SetBool("isGrounded", isGrounded);
+        anim.SetFloat("yVelocity", rb.velocity.y);
     }
 
     private void FixedUpdate()
@@ -217,6 +257,11 @@ public class PlayerController : MonoBehaviour
 
         //Check if grounded
         isGrounded = Physics2D.OverlapCircle(feet.position, groundCheckRadius, platforms);
+    }
+
+    private void OnDrawGizmos()
+    {
+        //Gizmos.DrawWireSphere(new Vector2((playerOrigin.position.x + attackRange) * horizontal, (playerOrigin.position.y + attackRange) * vertical), attackRadius);
     }
 
     public bool takeDamage()
