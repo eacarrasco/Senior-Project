@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -47,6 +48,8 @@ public class PlayerController : MonoBehaviour
     private int maxDashAttackMultiplier = 20;
     [SerializeField]
     private float dashAttackRadius = 1.5f;
+    private Vector3 lastImagePos;
+    private float distanceBetweenImages = 0.1f;
 
     //Attacking
     [SerializeField]
@@ -156,6 +159,10 @@ public class PlayerController : MonoBehaviour
                 {
                     dashAttackMultiplier = normalDashAttackMultiplier;
                 }
+
+                //Get After Image from pool
+                PlayerAfterImagePool.Instance.GetFromPool();
+                lastImagePos = transform.position;
             }
         }
         //Continue dashing if already initiated
@@ -172,6 +179,13 @@ public class PlayerController : MonoBehaviour
                 foreach (Collider2D collider in objectsHitByDash)
                 {
                     collider.transform.parent.SendMessage("Damage", attackDamage * dashAttackMultiplier);
+                }
+
+                //Dash After Image
+                if (Vector3.Distance(transform.position, lastImagePos) > distanceBetweenImages)
+                {
+                    PlayerAfterImagePool.Instance.GetFromPool();
+                    lastImagePos = transform.position;
                 }
             }
             else
