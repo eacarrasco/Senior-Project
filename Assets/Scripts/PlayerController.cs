@@ -41,7 +41,7 @@ public class PlayerController : MonoBehaviour
     private float dashSpeed = 40;
     private float dashTime = 0.2f;
     private float currentDashTime;
-    private int dashCharges = 1; //Change to 0
+    private int dashCharges = 3; //Change to 0
     private int maxDashCharges = 3;
     private int dashAttackMultiplier;
     private int normalDashAttackMultiplier = 3;
@@ -209,7 +209,11 @@ public class PlayerController : MonoBehaviour
                 lastAttack = Time.time;
 
                 //Where to attack based on inputs
-                if (horizontal == 0 && vertical == 0)
+                if (vertical != 0)
+                {
+                    objectsHitByAttack = Physics2D.OverlapCircleAll(new Vector2(playerOrigin.position.x, (playerOrigin.position.y + attackRange) * vertical), attackRadius, enemy);
+                }
+                else
                 {
                     if (isFacingRight)
                     {
@@ -219,10 +223,6 @@ public class PlayerController : MonoBehaviour
                     {
                         objectsHitByAttack = Physics2D.OverlapCircleAll(new Vector2(playerOrigin.position.x - attackRange, playerOrigin.position.y), attackRadius, enemy);
                     }
-                }
-                else
-                {
-                    objectsHitByAttack = Physics2D.OverlapCircleAll(new Vector2((playerOrigin.position.x + attackRange) * horizontal, (playerOrigin.position.y + attackRange) * vertical), attackRadius, enemy);
                 }
 
                 //If attack hit something, increment dash charges, apply attack recoil, and send a message for enemies to take damage
@@ -259,6 +259,8 @@ public class PlayerController : MonoBehaviour
         anim.SetBool("isWalking", isWalking);
         anim.SetBool("isGrounded", isGrounded);
         anim.SetFloat("yVelocity", rb.velocity.y);
+        anim.SetBool("isDashing", isDashing);
+        anim.SetInteger("dashCharges", dashCharges);
     }
 
     private void FixedUpdate()
