@@ -1,8 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEngine.EventSystems.EventTrigger;
+using static UnityEngine.RuleTile.TilingRuleOutput;
+using Transform = UnityEngine.Transform;
 
 public class PlayerController : MonoBehaviour
 {
@@ -25,7 +29,8 @@ public class PlayerController : MonoBehaviour
     private float groundCheckRadius = 0.7f;
     private bool canTakeDamage = true;
     private bool isWalking;
-    private bool isJumping;
+    private bool isAttacking = false;
+    private bool isTakingDamage = false;
 
     //Movement
     private float moveSpeed = 15;
@@ -165,6 +170,7 @@ public class PlayerController : MonoBehaviour
                 lastImagePos = transform.position;
             }
         }
+        float[] damageParameters = new float[3];
         //Continue dashing if already initiated
         if (isDashing)
         {
@@ -178,7 +184,10 @@ public class PlayerController : MonoBehaviour
                 objectsHitByDash = Physics2D.OverlapCircleAll(playerOrigin.position, dashAttackRadius, enemy);
                 foreach (Collider2D collider in objectsHitByDash)
                 {
-                    collider.transform.parent.SendMessage("Damage", attackDamage * dashAttackMultiplier);
+                    damageParameters[0] = attackDamage * dashAttackMultiplier;
+                    damageParameters[1] = transform.position.x;
+                    damageParameters[2] = transform.position.y;
+                    collider.transform.parent.SendMessage("takeDamage", damageParameters);
                 }
 
                 //Dash After Image
@@ -200,58 +209,23 @@ public class PlayerController : MonoBehaviour
         }
 
         //Attacking
-        Collider2D[] objectsHitByAttack;
         if (Input.GetKeyDown(KeyCode.X))
         {
             //Check if can attack
             if (canMove && Time.time >= lastAttack + attackCooldown)
             {
-                lastAttack = Time.time;
+                isAttacking = true;
+            }
+        }
 
-                //Where to attack based on inputs
-                if (vertical != 0)
-                {
-                    objectsHitByAttack = Physics2D.OverlapCircleAll(new Vector2(playerOrigin.position.x, (playerOrigin.position.y + attackRange) * vertical), attackRadius, enemy);
-                }
-                else
-                {
-                    if (isFacingRight)
-                    {
-                        objectsHitByAttack = Physics2D.OverlapCircleAll(new Vector2(playerOrigin.position.x + attackRange, playerOrigin.position.y), attackRadius, enemy);
-                    }
-                    else
-                    {
-                        objectsHitByAttack = Physics2D.OverlapCircleAll(new Vector2(playerOrigin.position.x - attackRange, playerOrigin.position.y), attackRadius, enemy);
-                    }
-                }
-
-                //If attack hit something, increment dash charges, apply attack recoil, and send a message for enemies to take damage
-                if (objectsHitByAttack.Length > 0)
-                {
-                    if (dashCharges < maxDashCharges)
-                    {
-                        dashCharges++;
-                    }
-                    if (horizontal == 0 && vertical == 0)
-                    {
-                        if (isFacingRight)
-                        {
-                            rb.velocity = new Vector2(-attackRecoil, rb.velocity.y);
-                        }
-                        else
-                        {
-                            rb.velocity = new Vector2(attackRecoil, rb.velocity.y);
-                        }
-                    }
-                    else
-                    {
-                        rb.velocity = new Vector2(-attackRecoil * horizontal, -attackRecoil * vertical);
-                    }
-                    foreach (Collider2D collider in objectsHitByAttack)
-                    {
-                        collider.transform.parent.SendMessage("Damage", attackDamage);
-                    }
-                }
+        //Taking damage
+        if (isTakingDamage)
+        {
+            if (Time.time >= lastDamage + invulnerableTimer)
+            {
+                canTakeDamage = true;
+                canMove = true;
+                isTakingDamage = false;
             }
         }
 
@@ -261,6 +235,7 @@ public class PlayerController : MonoBehaviour
         anim.SetFloat("yVelocity", rb.velocity.y);
         anim.SetBool("isDashing", isDashing);
         anim.SetInteger("dashCharges", dashCharges);
+        anim.SetBool("isTakingDamage", isTakingDamage);
     }
 
     private void FixedUpdate()
@@ -280,12 +255,80 @@ public class PlayerController : MonoBehaviour
         //Gizmos.DrawWireSphere(new Vector2((playerOrigin.position.x + attackRange) * horizontal, (playerOrigin.position.y + attackRange) * vertical), attackRadius);
     }
 
-    public bool takeDamage()
+    public void takeDamage(float[] damageParameters)
     {
         if (canTakeDamage)
         {
-            return true;
+            canTakeDamage = false;
+            canMove = false;
+            health -= (int)damageParameters[0];
+            if (health <= 0)
+            {
+                //End game
+            }
+            isTakingDamage = true;
+            lastDamage = Time.time;
+            rb.velocity = new Vector2(damageParameters[1] - transform.position.x, damageParameters[2] - transform.position.y).normalized * -knockback;
         }
-        return false;
+    }
+
+    public void attack()
+    {
+        Collider2D[] objectsHitByAttack;
+        float[] damageParameters = new float[3];
+
+        //Where to attack based on inputs
+        if (vertical != 0)
+        {
+            objectsHitByAttack = Physics2D.OverlapCircleAll(new Vector2(playerOrigin.position.x, (playerOrigin.position.y + attackRange) * vertical), attackRadius, enemy);
+        }
+        else
+        {
+            if (isFacingRight)
+            {
+                objectsHitByAttack = Physics2D.OverlapCircleAll(new Vector2(playerOrigin.position.x + attackRange, playerOrigin.position.y), attackRadius, enemy);
+            }
+            else
+            {
+                objectsHitByAttack = Physics2D.OverlapCircleAll(new Vector2(playerOrigin.position.x - attackRange, playerOrigin.position.y), attackRadius, enemy);
+            }
+        }
+
+        //If attack hit something, increment dash charges, apply attack recoil, and send a message for enemies to take damage
+        if (objectsHitByAttack.Length > 0)
+        {
+            if (dashCharges < maxDashCharges)
+            {
+                dashCharges++;
+            }
+            if (vertical != 0)
+            {
+                rb.velocity = new Vector2(rb.velocity.x, -attackRecoil * vertical);
+            }
+            else
+            {
+                if (isFacingRight)
+                {
+                    rb.velocity = new Vector2(-attackRecoil, rb.velocity.y);
+                }
+                else
+                {
+                    rb.velocity = new Vector2(attackRecoil, rb.velocity.y);
+                }
+            }
+            foreach (Collider2D collider in objectsHitByAttack)
+            {
+                damageParameters[0] = attackDamage;
+                damageParameters[1] = transform.position.x;
+                damageParameters[2] = transform.position.y;
+                collider.transform.parent.SendMessage("takeDamage", damageParameters);
+            }
+        }
+    }
+
+    public void endAttack()
+    {
+        isAttacking = false;
+        lastAttack = Time.time;
     }
 }

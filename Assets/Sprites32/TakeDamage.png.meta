@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 91c50fa664bf0ee4f8c9c967c087a47f
+guid: 9015e4f47a2b9074db88e97a6980d84a
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -117,7 +117,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Wall Slide_0
+      name: TakeDamage_0
       rect:
         serializedVersion: 2
         x: 0
@@ -131,8 +131,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b7a2490446a1e614488ebf3d777cf312
-      internalID: 1171092904
+      spriteID: f3e74d3df3c7c904987653d438f0e129
+      internalID: 768808338
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Wall Slide_0: 1171092904
+      TakeDamage_0: 768808338
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
