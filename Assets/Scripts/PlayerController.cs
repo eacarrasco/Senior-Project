@@ -236,6 +236,8 @@ public class PlayerController : MonoBehaviour
         anim.SetBool("isDashing", isDashing);
         anim.SetInteger("dashCharges", dashCharges);
         anim.SetBool("isTakingDamage", isTakingDamage);
+        anim.SetBool("isAttacking", isAttacking);
+        anim.SetFloat("vertical", vertical);
     }
 
     private void FixedUpdate()
@@ -269,6 +271,15 @@ public class PlayerController : MonoBehaviour
             isTakingDamage = true;
             lastDamage = Time.time;
             rb.velocity = new Vector2(damageParameters[1] - transform.position.x, damageParameters[2] - transform.position.y).normalized * -knockback;
+        }
+    }
+
+    public void startAttack()
+    {
+        canMove = false;
+        if (isGrounded)
+        {
+            rb.velocity = new Vector2(0, rb.velocity.y);
         }
     }
 
@@ -329,6 +340,7 @@ public class PlayerController : MonoBehaviour
     public void endAttack()
     {
         isAttacking = false;
+        canMove = true;
         lastAttack = Time.time;
     }
 }
