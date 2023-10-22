@@ -57,6 +57,7 @@ public class PlayerController : MonoBehaviour
     private float distanceBetweenImages = 0.1f;
 
     //Attacking
+    private float attackVertical;
     [SerializeField]
     private float attackRange = 3f;
     [SerializeField]
@@ -214,6 +215,7 @@ public class PlayerController : MonoBehaviour
             //Check if can attack
             if (canMove && Time.time >= lastAttack + attackCooldown)
             {
+                attackVertical = vertical;
                 isAttacking = true;
             }
         }
@@ -237,7 +239,7 @@ public class PlayerController : MonoBehaviour
         anim.SetInteger("dashCharges", dashCharges);
         anim.SetBool("isTakingDamage", isTakingDamage);
         anim.SetBool("isAttacking", isAttacking);
-        anim.SetFloat("vertical", vertical);
+        anim.SetFloat("attackVertical", attackVertical);
     }
 
     private void FixedUpdate()
@@ -289,9 +291,9 @@ public class PlayerController : MonoBehaviour
         float[] damageParameters = new float[3];
 
         //Where to attack based on inputs
-        if (vertical != 0)
+        if (attackVertical != 0)
         {
-            objectsHitByAttack = Physics2D.OverlapCircleAll(new Vector2(playerOrigin.position.x, (playerOrigin.position.y + attackRange) * vertical), attackRadius, enemy);
+            objectsHitByAttack = Physics2D.OverlapCircleAll(new Vector2(playerOrigin.position.x, (playerOrigin.position.y + attackRange) * attackVertical), attackRadius, enemy);
         }
         else
         {
@@ -312,9 +314,9 @@ public class PlayerController : MonoBehaviour
             {
                 dashCharges++;
             }
-            if (vertical != 0)
+            if (attackVertical != 0)
             {
-                rb.velocity = new Vector2(rb.velocity.x, -attackRecoil * vertical);
+                rb.velocity = new Vector2(rb.velocity.x, -attackRecoil * attackVertical);
             }
             else
             {
