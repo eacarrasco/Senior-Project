@@ -11,7 +11,7 @@ using Transform = UnityEngine.Transform;
 public class PlayerController : MonoBehaviour
 {
     //Stats
-    private int health = 4;
+    private float health = 4f;
     private float attackDamage = 4f;
 
     //Inputs
@@ -265,7 +265,7 @@ public class PlayerController : MonoBehaviour
         {
             canTakeDamage = false;
             canMove = false;
-            health -= (int)damageParameters[0];
+            health -= damageParameters[0];
             if (health <= 0)
             {
                 //End game

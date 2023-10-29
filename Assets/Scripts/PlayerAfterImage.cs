@@ -10,16 +10,13 @@ public class PlayerAfterImage : MonoBehaviour
     private float baseAlpha = 0.5f;
     [SerializeField]
     private float alphaDecay = 1f;
-    
-    private Transform player;
-    private SpriteRenderer sr;
-    private SpriteRenderer psr;
+  
+    public SpriteRenderer sr;
 
     private void OnEnable()
     {
-        sr = GetComponent<SpriteRenderer>();
-        player = GameObject.FindGameObjectWithTag("Player").transform;
-        psr = player.GetComponent<SpriteRenderer>();
+        Transform player = GameObject.FindGameObjectWithTag("Player").transform;
+        SpriteRenderer psr = player.GetComponent<SpriteRenderer>();
 
         alpha = baseAlpha;
         sr.sprite = psr.sprite;
