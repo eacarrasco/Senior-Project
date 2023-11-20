@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class EnemySpawnerScript : MonoBehaviour
@@ -11,10 +12,8 @@ public class EnemySpawnerScript : MonoBehaviour
     {
         if (Time.time > lastSpawn + spawnTime)
         {
-            GameObject newSpawn = EnemyPool.Instance.GetFromPool();
-            Transform newSpawnTransform = newSpawn.GetComponent<Transform>();
-            newSpawnTransform.position = transform.position;
-            newSpawnTransform.rotation = transform.rotation;
+            Transform[] newSpawn = EnemyPool.Instance.GetFromPool().GetComponentsInChildren<Transform>();
+            newSpawn[1].position = transform.position;
             lastSpawn = Time.time;
         }
     }

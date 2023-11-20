@@ -4,14 +4,30 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
+using UnityEngine.UI;
 using static UnityEngine.EventSystems.EventTrigger;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 using Transform = UnityEngine.Transform;
+using Image = UnityEngine.UI.Image;
 
 public class PlayerController : MonoBehaviour
 {
+    //HUD
+    public Image[] hearts;
+    public Sprite fullHeart;
+    public Sprite emptyHeart;
+    public Image[] charges;
+    public Sprite fullCharge;
+    public Sprite emptyCharge;
+
+    //Particles
+    public GameObject deathChunkParticle;
+    public GameObject deathBloodParticle;
+
     //Stats
     private float health = 4f;
+    private float maxHealth = 4f;
     private float attackDamage = 4f;
 
     //Inputs
@@ -46,7 +62,7 @@ public class PlayerController : MonoBehaviour
     private float dashSpeed = 40;
     private float dashTime = 0.2f;
     private float currentDashTime;
-    private int dashCharges = 3; //Change to 0
+    private int dashCharges = 0;
     private int maxDashCharges = 3;
     private int dashAttackMultiplier;
     private int normalDashAttackMultiplier = 3;
@@ -55,20 +71,24 @@ public class PlayerController : MonoBehaviour
     private float dashAttackRadius = 1.5f;
     private Vector3 lastImagePos;
     private float distanceBetweenImages = 0.1f;
+    private Collider2D[] objectsHitByDash;
 
     //Attacking
     private float attackVertical;
     [SerializeField]
-    private float attackRange = 3f;
+    private float attackRange = 0.2f;
     [SerializeField]
     private float attackRadius = 0.5f;
     private float lastAttack = Mathf.NegativeInfinity;
     private float attackCooldown = 0.2f;
-    private float attackRecoil = 5;
+    private float attackRecoil = 8f;
+    private float[] damageParameters = new float[3];
+    private Collider2D[] objectsHitByAttack;
+    private bool contact = false;
 
     //Taking damage
-    private float knockback = 1f;
-    private float invulnerableTimer = 1.5f;
+    private float knockback = 20f;
+    private float invulnerableTimer = 0.3f;
     private float lastDamage = Mathf.NegativeInfinity;
 
     //References to other components
@@ -78,6 +98,12 @@ public class PlayerController : MonoBehaviour
     public LayerMask platforms;
     public LayerMask enemy;
     public Animator anim;
+    public GameObject gameOverPanel;
+
+    private void Start()
+    {
+        health = maxHealth;
+    }
 
     // Update is called once per frame
     void Update()
@@ -130,7 +156,6 @@ public class PlayerController : MonoBehaviour
 
 
         //Dashing
-        Collider2D[] objectsHitByDash;
         if (Input.GetKeyDown(KeyCode.C)) 
         {
             if (canMove && dashCharges > 0)
@@ -171,7 +196,6 @@ public class PlayerController : MonoBehaviour
                 lastImagePos = transform.position;
             }
         }
-        float[] damageParameters = new float[3];
         //Continue dashing if already initiated
         if (isDashing)
         {
@@ -183,6 +207,15 @@ public class PlayerController : MonoBehaviour
 
                 //Cause enemies in the way of dash to take damage
                 objectsHitByDash = Physics2D.OverlapCircleAll(playerOrigin.position, dashAttackRadius, enemy);
+                if (objectsHitByDash.Length > 0)
+                {
+                    if (health < maxHealth)
+                    {
+                        hearts[(int)health].sprite = fullHeart;
+                        health += 1;
+                    }
+                }
+
                 foreach (Collider2D collider in objectsHitByDash)
                 {
                     damageParameters[0] = attackDamage * dashAttackMultiplier;
@@ -204,7 +237,10 @@ public class PlayerController : MonoBehaviour
                 canMove = true;
                 isDashing = false;
                 canTakeDamage = true;
-                dashCharges = 1; //Change to 0
+                dashCharges = 0;
+                charges[0].sprite = emptyCharge;
+                charges[1].sprite = emptyCharge;
+                charges[2].sprite = emptyCharge;
                 rb.velocity = new Vector2(rb.velocity.x, 0);
             }
         }
@@ -268,10 +304,15 @@ public class PlayerController : MonoBehaviour
             health -= damageParameters[0];
             if (health <= 0)
             {
-                //End game
+                Instantiate(deathChunkParticle, transform.position, deathChunkParticle.transform.rotation);
+                Instantiate(deathBloodParticle, transform.position, deathBloodParticle.transform.rotation);
+                gameOverPanel.SetActive(true);
+                gameObject.SetActive(false);
             }
+            hearts[(int)health].sprite = emptyHeart;
             isTakingDamage = true;
             lastDamage = Time.time;
+            HitParticlePool.Instance.GetFromPool().GetComponent<Transform>().position = transform.position;
             rb.velocity = new Vector2(damageParameters[1] - transform.position.x, damageParameters[2] - transform.position.y).normalized * -knockback;
         }
     }
@@ -283,13 +324,11 @@ public class PlayerController : MonoBehaviour
         {
             rb.velocity = new Vector2(0, rb.velocity.y);
         }
+        attack();
     }
 
     public void attack()
     {
-        Collider2D[] objectsHitByAttack;
-        float[] damageParameters = new float[3];
-
         //Where to attack based on inputs
         if (attackVertical != 0)
         {
@@ -310,9 +349,11 @@ public class PlayerController : MonoBehaviour
         //If attack hit something, increment dash charges, apply attack recoil, and send a message for enemies to take damage
         if (objectsHitByAttack.Length > 0)
         {
-            if (dashCharges < maxDashCharges)
+            if (!contact && dashCharges < maxDashCharges)
             {
+                charges[dashCharges].sprite = fullCharge;
                 dashCharges++;
+                contact = true;
             }
             if (attackVertical != 0)
             {
@@ -341,8 +382,10 @@ public class PlayerController : MonoBehaviour
 
     public void endAttack()
     {
+        attack();
         isAttacking = false;
         canMove = true;
         lastAttack = Time.time;
+        contact = false;
     }
 }
