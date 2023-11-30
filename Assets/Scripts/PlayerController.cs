@@ -81,7 +81,7 @@ public class PlayerController : MonoBehaviour
     private float attackRadius = 0.5f;
     private float lastAttack = Mathf.NegativeInfinity;
     private float attackCooldown = 0.2f;
-    private float attackRecoil = 8f;
+    private float attackRecoil = 15f;
     private float[] damageParameters = new float[3];
     private Collider2D[] objectsHitByAttack;
     private bool contact = false;
@@ -332,7 +332,7 @@ public class PlayerController : MonoBehaviour
         //Where to attack based on inputs
         if (attackVertical != 0)
         {
-            objectsHitByAttack = Physics2D.OverlapCircleAll(new Vector2(playerOrigin.position.x, (playerOrigin.position.y + attackRange) * attackVertical), attackRadius, enemy);
+            objectsHitByAttack = Physics2D.OverlapCircleAll(new Vector2(playerOrigin.position.x, playerOrigin.position.y + attackRange * attackVertical), attackRadius, enemy);
         }
         else
         {
