@@ -19,20 +19,28 @@ public class EnemyController : MonoBehaviour
     private float lastDamage = Mathf.NegativeInfinity;
     private float invulnerableTimer = 0.2f;
     private float movement = 1f;
-    private float movespeed = 5f;
+    private float movespeed = 4f;
     private bool isFacingRight = true;
     private float followRange = 0.5f;
     private float damageWidth = 1.5f;
     private float damageHeight = 0.9f;
+    private float wallCheckDistance = 0.1f;
+    private float jumpPower = 9f;
+    private bool wallDetected;
+    private float groundCheckRadius = 0.3f;
+    private bool isGrounded;
 
     public Transform origin;
-    public Transform player;
+    private Transform player;
     public Rigidbody2D rb;
     public Animator anim;
     public GameObject alive;
     public GameObject deathChunkParticle;
     public GameObject deathBloodParticle;
     public LayerMask playerLayer;
+    public LayerMask platforms;
+    public Transform wallCheck;
+    public Transform groundCheck;
 
     private void Start()
     {
@@ -73,6 +81,19 @@ public class EnemyController : MonoBehaviour
             }
         }
 
+        if (isFacingRight)
+        {
+            wallDetected = Physics2D.Raycast(wallCheck.position, transform.right, wallCheckDistance, platforms);
+        }
+        else
+        {
+            wallDetected = Physics2D.Raycast(wallCheck.position, -transform.right, wallCheckDistance, platforms);
+        }
+        if (canMove && isGrounded && wallDetected)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, jumpPower);
+        }
+
         if (canMove && Time.time >= lastAttack + attackCooldown)
         {
             objectHitByAttack = Physics2D.OverlapArea(new Vector2(origin.position.x - damageWidth / 2, origin.position.y - damageHeight / 2), new Vector2(origin.position.x + damageWidth / 2, origin.position.y + damageHeight / 2), playerLayer);
@@ -107,6 +128,8 @@ public class EnemyController : MonoBehaviour
         {
             rb.velocity = new Vector2(movement * movespeed, rb.velocity.y);
         }
+
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, platforms);
     }
 
     public void takeDamage(float[] damageParameters)

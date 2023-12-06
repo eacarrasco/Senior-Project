@@ -5,8 +5,13 @@ using UnityEngine;
 
 public class EnemySpawnerScript : MonoBehaviour
 {
-    private float lastSpawn = 0f; //Make higher to add initial spawn delay
-    private float spawnTime = 5f;
+    private float lastSpawn = 0f;
+    private float spawnTime = 10f;
+
+    private void Start()
+    {
+        lastSpawn = Time.time;
+    }
 
     void Update()
     {
