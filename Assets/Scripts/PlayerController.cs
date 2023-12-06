@@ -251,7 +251,15 @@ public class PlayerController : MonoBehaviour
             //Check if can attack
             if (canMove && Time.time >= lastAttack + attackCooldown)
             {
-                attackVertical = vertical;
+                if (vertical == -1 && isGrounded)
+                {
+                    attackVertical = 0;
+                }
+                else
+                {
+                    attackVertical = vertical;
+                }
+                
                 isAttacking = true;
             }
         }
