@@ -47,6 +47,7 @@ public class PlayerController : MonoBehaviour
     private bool isWalking;
     private bool isAttacking = false;
     private bool isTakingDamage = false;
+    private bool isRecoveringFromDamage = false;
 
     //Movement
     private float moveSpeed = 15;
@@ -87,8 +88,9 @@ public class PlayerController : MonoBehaviour
     private bool contact = false;
 
     //Taking damage
-    private float knockback = 20f;
-    private float invulnerableTimer = 0.3f;
+    private float knockback = 15f;
+    private float damageTimer = 0.3f;
+    private float invulnerableTimer = 1f;
     private float lastDamage = Mathf.NegativeInfinity;
 
     //References to other components
@@ -267,11 +269,21 @@ public class PlayerController : MonoBehaviour
         //Taking damage
         if (isTakingDamage)
         {
-            if (Time.time >= lastDamage + invulnerableTimer)
+            if (Time.time >= lastDamage + damageTimer)
             {
-                canTakeDamage = true;
                 canMove = true;
                 isTakingDamage = false;
+            }
+        }
+        if (isRecoveringFromDamage)
+        {
+            if (Time.time >= lastDamage + invulnerableTimer)
+            {
+                if (!isDashing)
+                {
+                    canTakeDamage = true;
+                }
+                isRecoveringFromDamage = false;
             }
         }
 
@@ -319,9 +331,17 @@ public class PlayerController : MonoBehaviour
             }
             hearts[(int)health].sprite = emptyHeart;
             isTakingDamage = true;
+            isRecoveringFromDamage = true;
             lastDamage = Time.time;
             HitParticlePool.Instance.GetFromPool().GetComponent<Transform>().position = transform.position;
-            rb.velocity = new Vector2(damageParameters[1] - transform.position.x, damageParameters[2] - transform.position.y).normalized * -knockback;
+            if (damageParameters[1] > transform.position.x)
+            {
+                rb.velocity = new Vector2(-knockback, knockback);
+            }
+            else
+            {
+                rb.velocity = new Vector2(knockback, knockback);
+            }
         }
     }
 

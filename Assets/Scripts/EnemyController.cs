@@ -25,7 +25,7 @@ public class EnemyController : MonoBehaviour
     private float damageWidth = 1.5f;
     private float damageHeight = 0.9f;
     private float wallCheckDistance = 0.1f;
-    private float jumpPower = 9f;
+    private float jumpPower = 10f;
     private bool wallDetected;
     private float groundCheckRadius = 0.3f;
     private bool isGrounded;
